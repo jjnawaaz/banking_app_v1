@@ -2,12 +2,13 @@ import "dotenv/config";
 import express from "express";
 const app = express();
 import { adminRouter } from "./routes/adminRoutes";
-
+import { userRouter } from "./routes/userRoutes";
+const PORT = process.env.PORT;
 app.use(express.json());
 
 app.use("/admin", adminRouter);
+app.use("/user", userRouter);
 
-const PORT = process.env.PORT;
 app.get("/", (req, res) => {
   res.send("Hello from banking app");
 });
