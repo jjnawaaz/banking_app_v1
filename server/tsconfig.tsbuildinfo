@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/controller/admincontroller.ts","./src/controller/usercontroller.ts","./src/db/dbconnect.ts","./src/interface/interface1.ts","./src/middleware/authenticatejwt.ts","./src/routes/adminroutes.ts","./src/utils/hashutils.ts","./src/utils/jwtutils.ts"],"version":"5.8.3"}
