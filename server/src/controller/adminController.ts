@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import prisma from "../db/dbConnect";
-import { hashPassword, verifyPassword } from "../utils/hashUtils";
+import { hashPassword, verifyPasswordAdmin } from "../utils/hashUtils";
 import jwt, { Secret } from "jsonwebtoken";
 import "dotenv/config";
 import { CustomRequest } from "../interface/interface1";
 
 const SECRET: Secret = process.env.JWT_SECRET!;
 
+/** Admin SignUp */
 export const AdminSignUp = async (req: Request, res: Response) => {
   /** Destructure username and password */
   const { name, username, password } = req.body;
@@ -56,6 +57,7 @@ export const AdminSignUp = async (req: Request, res: Response) => {
   }
 };
 
+/** Admin Login */
 export const AdminLogin = async (req: Request, res: Response) => {
   /** Destructure the Data  */
   const { username, password } = req.body;
@@ -70,7 +72,7 @@ export const AdminLogin = async (req: Request, res: Response) => {
   }
 
   /** Verify the password*/
-  const verifyPass = await verifyPassword(username, password);
+  const verifyPass = await verifyPasswordAdmin(username, password);
   if (verifyPass) {
     /** Generate token */
     const token = jwt.sign({ username: username }, SECRET);
@@ -86,30 +88,137 @@ export const AdminLogin = async (req: Request, res: Response) => {
   return;
 };
 
-// Pending functionality
+/** Admin approval functionality */
 export const approveUsers = async (req: CustomRequest, res: Response) => {
-  // Check if the user is admin or not get it from token
-  const adminUsername = req.admin?.username;
-  const username = req.body;
+  /** Get admin data and username data */
+  const adminUsername = req.user?.username;
+  const username = req.body.username;
+  /** Check for correct fields */
   if (!adminUsername) {
     res.status(403).json({
       message: "Unauthorized user",
     });
+    return;
   }
+  /** Check for username details */
+  if (!username) {
+    res.status(403).json({
+      message: "Please send user details",
+    });
+    return;
+  }
+  /** Find admin in admin DB */
   const isAdmin = await prisma.admin.findMany({
     where: {
       email: adminUsername,
     },
   });
-  if (isAdmin[0]) {
-    // find user
-    const user = await prisma.user.findMany({
+
+  /** If admin DB then user approval logic */
+  if (isAdmin) {
+    try {
+      /** Find user in DB and update*/
+      const user = await prisma.user.update({
+        where: {
+          email: username,
+        },
+        data: {
+          approved: true,
+        },
+      });
+      res.status(201).json({
+        message: "User approved successfully",
+      });
+      return;
+    } catch (err) {
+      /** Catch errors if user doesnt exists */
+      res.status(403).json({
+        message: "Error while approving",
+        error: err,
+      });
+      return;
+    }
+  } else {
+    /** If user exists in Admin DB if not he is invalid admin */
+    res.status(403).json({
+      message: "Invalid admin",
+    });
+    return;
+  }
+};
+
+/** Admin can get all users */
+export const getAllUsers = async (req: CustomRequest, res: Response) => {
+  try {
+    const adminEmail = req.user?.username;
+    if (!adminEmail) {
+      res.status(403).json({
+        message: "Unauthorized: Admin credentials missing",
+      });
+      return;
+    }
+
+    const isAdmin = await prisma.admin.findFirst({
       where: {
-        email: username,
+        email: adminEmail,
       },
     });
 
-    console.log(user);
+    if (isAdmin) {
+      const users = await prisma.user.findMany({
+        select: {
+          name: true,
+          email: true,
+          accNo: true,
+          approved: true,
+        },
+      });
+
+      res.status(200).json({
+        message: "Users fetched successfully",
+        users: users,
+      });
+    } else {
+      res.status(403).json({
+        message: "Forbidden: Admin privileges required",
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal server error",
+    });
   }
-  console.log(isAdmin[0].email);
+};
+
+// Dummy route to update user balances
+
+export const dummyMoney = async (req: CustomRequest, res: Response) => {
+  try {
+    const adminId = req.user?.username;
+    const { email, addAmount } = req.body;
+    if (!adminId) {
+      res.status(403).json({
+        message: " Invalid admin token",
+      });
+    }
+
+    await prisma.user.update({
+      where: {
+        email: email,
+      },
+      data: {
+        balance: { increment: Number(addAmount) },
+      },
+    });
+
+    res.status(201).json({
+      message: "Added dummy balance successfully",
+    });
+    return;
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: err,
+    });
+  }
 };
