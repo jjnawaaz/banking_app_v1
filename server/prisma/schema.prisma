@@ -43,7 +43,7 @@ model User {
   approved Boolean @default(false)
   transactions Transaction[] 
   createdAt DateTime @default(now()) @db.Timestamp(6)
-  updatedAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
 }
 
 
@@ -53,4 +53,5 @@ model Admin{
   name String @db.VarChar(255)
   email String @db.VarChar(255) @unique
   password String @db.VarChar(255)
+  
 }

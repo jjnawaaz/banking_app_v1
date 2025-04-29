@@ -14,11 +14,12 @@ export const authenticateJWT = async (
     res.status(403).json({
       message: "No signin token",
     });
+    return;
   }
   try {
     const user = jwt.verify(token, SECRET) as JwtPayload;
     if (user) {
-      req.admin = user;
+      req.user = user;
       next();
     } else {
       res.status(403).json({
