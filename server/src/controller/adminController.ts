@@ -11,7 +11,10 @@ const SECRET: Secret = process.env.JWT_SECRET!;
 export const AdminSignUp = async (req: Request, res: Response) => {
   /** Destructure username and password */
   const { name, username, password } = req.body;
+  console.log(req.body.password);
 
+  console.log("Hitting from frontEnd");
+  console.log(name, username, password);
   /** check the fields*/
   if (!name || !username || !password) {
     res.status(403).json({
