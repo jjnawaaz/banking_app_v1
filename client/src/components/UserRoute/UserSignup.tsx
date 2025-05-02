@@ -39,6 +39,7 @@ const UserSignup = () => {
         console.log(response);
       }
     } catch (err) {
+      console.log(err);
       setExistingUser(true);
     }
   };
