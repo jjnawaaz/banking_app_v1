@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserSignup = () => {
   const userName = useRef<HTMLInputElement>(null);
@@ -9,6 +10,7 @@ const UserSignup = () => {
   const [email, setEmail] = useState(false);
   const [password, setPassword] = useState(false);
   const [existingUser, setExistingUser] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +38,9 @@ const UserSignup = () => {
         password: password,
       });
       if (response) {
-        console.log(response);
+        localStorage.setItem("token", response.data.token);
+        window.dispatchEvent(new Event("storage"));
+        navigate("/userPage");
       }
     } catch (err) {
       console.log(err);

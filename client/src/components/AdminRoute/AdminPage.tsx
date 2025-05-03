@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminSideBar from "./AdminSideBar";
 
 const AdminPage = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -19,7 +20,14 @@ const AdminPage = () => {
       navigate("/");
     }
   }, [token, navigate]);
-  return <div>This is admin page after signing in</div>;
+  return (
+    <div className="flex h-[calc(100vh-48px)]">
+      <div className="w-[10%] h-[100%]">
+        <AdminSideBar />
+      </div>
+      <div className=" h-[calc(100vh-48px)] w-full text-white">hello</div>
+    </div>
+  );
 };
 
 export default AdminPage;

@@ -10,7 +10,7 @@ const AdminSignup = () => {
   const [email, setEmail] = useState(false);
   const [password, setPassword] = useState(false);
   const [existingUser, setExistingUser] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +35,12 @@ const AdminSignup = () => {
         password: password,
       });
       if (response.data) {
-        localStorage.setItem('token',response.data.token)
-        navigate('/userPage')
+        localStorage.setItem("token", response.data.token);
+        window.dispatchEvent(new Event("storage"));
+        navigate("/userPage");
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setExistingUser(true);
     }
   };

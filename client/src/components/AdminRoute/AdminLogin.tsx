@@ -30,9 +30,11 @@ const AdminLogin = () => {
         username: email.current?.value,
         password: password.current?.value,
       });
+      console.log(email, password);
       if (response.data) {
         console.log(response.data);
         localStorage.setItem("token", response.data.token);
+        window.dispatchEvent(new Event("storage"));
         navigate("/adminPage");
       }
     } catch (err) {

@@ -33,7 +33,8 @@ const UserLogin = () => {
       if (response.data) {
         console.log(response.data);
         localStorage.setItem("token", response.data.token);
-        navigate("/adminPage");
+        window.dispatchEvent(new Event("storage"));
+        navigate("/userPage");
       }
     } catch (err) {
       console.log(err);
